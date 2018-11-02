@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var ts = require("typescript");
 var analyser = require("./ts-analyser");
@@ -60,9 +59,15 @@ function getModules(targetPath, recursive) {
     console.log("Found " + modules.length + " module(s)");
     return modules;
 }
-function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, svgOutput) {
+function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput) {
     var modules = getModules(targetPath, recursive);
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, svgOutput);
+    if (merge) {
+        modules = modules.reduce(function (acc, val) {
+            acc.push.apply(acc, val.modules);
+            return acc;
+        }, []);
+    }
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
 }
 exports.createGraph = createGraph;
 function getModulesDependencies(targetPath, recursive) {

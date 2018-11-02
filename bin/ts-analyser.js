@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var ts = require("typescript");
 var path = require("path");
 var ts_elements_1 = require("./ts-elements");
@@ -29,13 +28,38 @@ function collectInformation(program, sourceFile) {
                 var moduleName_1 = importDeclaration.moduleSpecifier.text;
                 childElement = new ts_elements_1.ImportedModule(moduleName_1, currentElement);
                 break;
+            case 218:
+                var interfaceDeclaration = node;
+                var interfaceDef = new ts_elements_1.Class(interfaceDeclaration.name.text, currentElement, getVisibility(node));
+                if (interfaceDeclaration.typeParameters && interfaceDeclaration.typeParameters.length > 0) {
+                    interfaceDef.typeParameter = interfaceDeclaration.typeParameters[0].name.text;
+                }
+                if (interfaceDeclaration.heritageClauses) {
+                    var extendsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === 83; });
+                    if (extendsClause && extendsClause.types.length > 0) {
+                        interfaceDef.extends = getFullyQualifiedName(extendsClause.types[0]);
+                    }
+                    var implementsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === 106; });
+                    if (implementsClause && implementsClause.types.length > 0) {
+                        interfaceDef.implements = getFullyQualifiedName(implementsClause.types[0]);
+                    }
+                }
+                childElement = interfaceDef;
+                break;
             case 217:
                 var classDeclaration = node;
                 var classDef = new ts_elements_1.Class(classDeclaration.name.text, currentElement, getVisibility(node));
+                if (classDeclaration.typeParameters && classDeclaration.typeParameters.length > 0) {
+                    classDef.typeParameter = classDeclaration.typeParameters[0].name.text;
+                }
                 if (classDeclaration.heritageClauses) {
                     var extendsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 83; });
                     if (extendsClause && extendsClause.types.length > 0) {
                         classDef.extends = getFullyQualifiedName(extendsClause.types[0]);
+                    }
+                    var implementsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 106; });
+                    if (implementsClause && implementsClause.types.length > 0) {
+                        classDef.implements = getFullyQualifiedName(implementsClause.types[0]);
                     }
                 }
                 childElement = classDef;
