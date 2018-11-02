@@ -5,6 +5,7 @@ import * as ts from "typescript";
 import { Module } from "./ts-elements";
 import * as analyser from "./ts-analyser"; 
 import * as umlBuilder from "./uml-builder";
+import * as plantBuilder from "./plant-builder";
 
 export interface OutputModule {
 	name: string;
@@ -80,7 +81,7 @@ function getModules(targetPath: string, recursive: boolean): Module[] {
 
 export function createGraph(targetPath: string, outputFilename: string,
     dependenciesOnly: boolean, recursive: boolean, merge: boolean, noMethods: boolean, noProperties: boolean,
-    svgOutput: boolean, dotOutput: boolean) {
+    svgOutput: boolean, dotOutput: boolean, plantOutput: boolean) {
     let modules = getModules(targetPath, recursive);
 
     if (merge) {
@@ -90,7 +91,11 @@ export function createGraph(targetPath: string, outputFilename: string,
         }, []);
     }
 
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
+    if (plantOutput) {
+        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties);
+    } else {
+        umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
+    }
 }
 
 export function getModulesDependencies(targetPath: string, recursive: boolean): OutputModule[] {

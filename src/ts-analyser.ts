@@ -130,7 +130,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             return new QualifiedName(nameParts);
         }
         console.warn("Unable to resolve type: '" + expression.getText() + "'");
-        return new QualifiedName(["unknown?"]);
+        return new QualifiedName(["unknown"]);
     }
     
     function getVisibility(node: ts.Node) {
