@@ -112,7 +112,7 @@ function collectInformation(program, sourceFile) {
             return new ts_elements_1.QualifiedName(nameParts);
         }
         console.warn("Unable to resolve type: '" + expression.getText() + "'");
-        return new ts_elements_1.QualifiedName(["unknown?"]);
+        return new ts_elements_1.QualifiedName(["unknown"]);
     }
     function getVisibility(node) {
         if (node.modifiers) {

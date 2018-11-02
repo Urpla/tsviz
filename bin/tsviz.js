@@ -3,6 +3,7 @@ var fs_1 = require("fs");
 var ts = require("typescript");
 var analyser = require("./ts-analyser");
 var umlBuilder = require("./uml-builder");
+var plantBuilder = require("./plant-builder");
 function walk(dir, recursive) {
     var results = [];
     var list = fs_1.readdirSync(dir);
@@ -59,7 +60,7 @@ function getModules(targetPath, recursive) {
     console.log("Found " + modules.length + " module(s)");
     return modules;
 }
-function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput) {
+function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput, plantOutput) {
     var modules = getModules(targetPath, recursive);
     if (merge) {
         modules = modules.reduce(function (acc, val) {
@@ -67,7 +68,12 @@ function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, me
             return acc;
         }, []);
     }
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
+    if (plantOutput) {
+        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties);
+    }
+    else {
+        umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
+    }
 }
 exports.createGraph = createGraph;
 function getModulesDependencies(targetPath, recursive) {

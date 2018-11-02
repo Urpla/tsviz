@@ -13,7 +13,8 @@ function main(args) {
             "  -no-methods: hide methods from class definitions\n" +
             "  -no-properties: hide properties from class definitions\n" +
             "  -svg: output an svg file\n" +
-            "  -dot: output a dot file");
+            "  -dot: output a dot file\n" +
+            "  -plant: output plantuml to file\n");
         return;
     }
     var targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
@@ -25,7 +26,8 @@ function main(args) {
     var noProperties = switches.indexOf("-no-properties") >= 0;
     var svgOutput = switches.indexOf("-svg") >= 0;
     var dotOutput = switches.indexOf("-dot") >= 0;
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput);
+    var plantOutput = switches.indexOf("-plant") >= 0;
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput, plantOutput);
     console.log("Done");
 }
 function run() {
