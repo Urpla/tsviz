@@ -78,9 +78,19 @@ function getModules(targetPath: string, recursive: boolean): Module[] {
     return modules;
 }
 
-export function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean, recursive: boolean, svgOutput: boolean) {
+export function createGraph(targetPath: string, outputFilename: string,
+    dependenciesOnly: boolean, recursive: boolean, merge: boolean, noMethods: boolean, noProperties: boolean,
+    svgOutput: boolean, dotOutput: boolean) {
     let modules = getModules(targetPath, recursive);
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, svgOutput);
+
+    if (merge) {
+        modules = modules.reduce((acc, val) => {
+            acc.push.apply(acc, val.modules);
+            return acc;
+        }, []);
+    }
+
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
 }
 
 export function getModulesDependencies(targetPath: string, recursive: boolean): OutputModule[] {

@@ -36,13 +36,39 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 childElement = new ImportedModule(moduleName, currentElement);
                 break;
                 
+            case ts.SyntaxKind.InterfaceDeclaration:
+                let interfaceDeclaration = <ts.InterfaceDeclaration> node;
+                let interfaceDef = new Class(interfaceDeclaration.name.text, currentElement, getVisibility(node));
+                if (interfaceDeclaration.typeParameters && interfaceDeclaration.typeParameters.length > 0) {
+                    interfaceDef.typeParameter = interfaceDeclaration.typeParameters[0].name.text;
+                }
+                if (interfaceDeclaration.heritageClauses) {
+                    let extendsClause = Collections.firstOrDefault(interfaceDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ExtendsKeyword);
+                    if (extendsClause && extendsClause.types.length > 0) {
+                        interfaceDef.extends = getFullyQualifiedName(extendsClause.types[0]);
+                    }
+                    let implementsClause = Collections.firstOrDefault(interfaceDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ImplementsKeyword);
+                    if (implementsClause && implementsClause.types.length > 0) {
+                        interfaceDef.implements = getFullyQualifiedName(implementsClause.types[0]);
+                    }
+                }
+                childElement = interfaceDef;
+                break;
+        
             case ts.SyntaxKind.ClassDeclaration:
                 let classDeclaration = <ts.ClassDeclaration> node;
                 let classDef = new Class(classDeclaration.name.text, currentElement, getVisibility(node));
+                if (classDeclaration.typeParameters && classDeclaration.typeParameters.length > 0) {
+                    classDef.typeParameter = classDeclaration.typeParameters[0].name.text;
+                }
                 if (classDeclaration.heritageClauses) {
                     let extendsClause = Collections.firstOrDefault(classDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ExtendsKeyword);
                     if (extendsClause && extendsClause.types.length > 0) {
                         classDef.extends = getFullyQualifiedName(extendsClause.types[0]);
+                    }
+                    let implementsClause = Collections.firstOrDefault(classDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ImplementsKeyword);
+                    if (implementsClause && implementsClause.types.length > 0) {
+                        classDef.implements = getFullyQualifiedName(implementsClause.types[0]);
                     }
                 }
                 childElement = classDef;

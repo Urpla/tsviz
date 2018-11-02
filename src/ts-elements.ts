@@ -106,6 +106,8 @@ export class Class extends Element {
     private _methods = new Array<Method>();
     private _properties : { [name: string ] : Property } = {};
     private _extends: QualifiedName;
+    private _implements: QualifiedName;
+    private _typeParameter : string;
     
     public get methods(): Array<Method> {
         return this._methods;
@@ -147,6 +149,22 @@ export class Class extends Element {
     
     public set extends(extendingClass: QualifiedName) {
         this._extends = extendingClass;
+    }
+
+    public get implements(): QualifiedName {
+        return this._implements;
+    }
+    
+    public set implements(implementingClass: QualifiedName) {
+        this._implements = implementingClass;
+    }
+
+    public get typeParameter(): string {
+        return this._typeParameter;
+    }
+
+    public set typeParameter(t: string) {
+        this._typeParameter = t;
     }
 }
 

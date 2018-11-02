@@ -13,9 +13,12 @@ declare module 'graphviz' {
   }
 
   export interface Node extends HasAttributes {
+    id: string;
   }
 
   export interface Edge extends HasAttributes {
+    nodeOne: Node;
+    nodeTwo: Node;
   }
 
   export interface OutputCallback {
@@ -35,9 +38,17 @@ declare module 'graphviz' {
     E: any;  // edge options
   }
 
+  export interface Hash {
+    length: number;
+    items: any;
+  }
+
   export interface Graph extends HasAttributes {
 
+    id: string;
+
     addNode(id: string, attrs?: any): Node;
+    getNode(id: string): Node;
     nodeCount(): number;
 
     // TODO: Use union types when we have TS 1.4
@@ -45,13 +56,14 @@ declare module 'graphviz' {
     addEdge(nodeOne: string, nodeTwo: Node, attrs?: any): Edge;
     addEdge(nodeOne: Node, nodeTwo: string, attrs?: any): Edge;
     addEdge(nodeOne: Node, nodeTwo: Node, attrs?: any): Edge;
-
     edgeCount(): number;
+    edges: [];
 
     // Subgraph (cluster) API
     addCluster(id: string): Graph;
     getCluster(id: string): Graph;
     clusterCount(): number;
+    clusters: Hash;
 
     setNodeAttribut(name: string, value: any): void;
     getNodeAttribut(name: string): any;
