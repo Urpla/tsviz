@@ -60,7 +60,7 @@ function getModules(targetPath, recursive) {
     console.log("Found " + modules.length + " module(s)");
     return modules;
 }
-function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput, plantOutput) {
+function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, noTypes, svgOutput, dotOutput, plantOutput) {
     var modules = getModules(targetPath, recursive);
     if (merge) {
         modules = modules.reduce(function (acc, val) {
@@ -69,7 +69,7 @@ function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, me
         }, []);
     }
     if (plantOutput) {
-        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties);
+        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties, noTypes);
     }
     else {
         umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);

@@ -31,6 +31,7 @@ function collectInformation(program, sourceFile) {
             case ts.SyntaxKind.InterfaceDeclaration:
                 var interfaceDeclaration = node;
                 var interfaceDef = new ts_elements_1.Class(interfaceDeclaration.name.text, currentElement, getVisibility(node));
+                interfaceDef.isInterface = true;
                 if (interfaceDeclaration.typeParameters && interfaceDeclaration.typeParameters.length > 0) {
                     interfaceDef.typeParameter = interfaceDeclaration.typeParameters[0].name.text;
                 }
@@ -70,6 +71,9 @@ function collectInformation(program, sourceFile) {
             case ts.SyntaxKind.PropertySignature:
                 var propertyDeclaration = node;
                 var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
+                if (propertyDeclaration.type) {
+                    property.type = getTypeFromNode(propertyDeclaration.type);
+                }
                 switch (node.kind) {
                     case ts.SyntaxKind.GetAccessor:
                         property.hasGetter = true;
@@ -84,7 +88,11 @@ function collectInformation(program, sourceFile) {
             case ts.SyntaxKind.FunctionDeclaration:
             case ts.SyntaxKind.MethodSignature:
                 var functionDeclaration = node;
-                childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
+                var method = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
+                if (functionDeclaration.type) {
+                    method.type = getTypeFromNode(functionDeclaration.type);
+                }
+                childElement = method;
                 skipChildren = true;
                 break;
         }
@@ -150,6 +158,58 @@ function collectInformation(program, sourceFile) {
     }
     function hasModifierSet(value, modifier) {
         return (value & modifier) === modifier;
+    }
+    function getTypeFromType(type) {
+        if (hasModifierSet(type.flags, ts.TypeFlags.Any)) {
+            return "any";
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.String)) {
+            return "string";
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Number)) {
+            return "number";
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Boolean)) {
+            return "boolean";
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Void)) {
+            return "void";
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Enum)) {
+            return typeChecker.getFullyQualifiedName(type.symbol);
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.TypeParameter)) {
+            return typeChecker.getFullyQualifiedName(type.symbol);
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Class)) {
+            return typeChecker.getFullyQualifiedName(type.symbol);
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Interface)) {
+            return typeChecker.getFullyQualifiedName(type.symbol);
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Reference)) {
+            var typeRef = type;
+            if (typeRef.typeArguments) {
+                var args = typeRef.typeArguments.map(function (t) { return getTypeFromType(t); });
+                return getTypeFromType(typeRef.target) + "<" + args.join(', ') + ">";
+            }
+            return getTypeFromType(typeRef.target);
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Union)) {
+            var union = type;
+            var memebers = union.types.map(function (t) { return getTypeFromType(t); });
+            return memebers.join(" | ");
+        }
+        else if (hasModifierSet(type.flags, ts.TypeFlags.Anonymous)) {
+            return "anonymous";
+        }
+        else {
+            return "unknown";
+        }
+    }
+    function getTypeFromNode(node) {
+        var type = typeChecker.getTypeAtLocation(node);
+        return getTypeFromType(type);
     }
     return module;
 }

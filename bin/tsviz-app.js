@@ -12,6 +12,7 @@ function main(args) {
             "  -m, merge: merge top level modules (will drop globals)\n" +
             "  -no-methods: hide methods from class definitions\n" +
             "  -no-properties: hide properties from class definitions\n" +
+            "  -no-types: hide types from methods and properties definitions (types output require -plant)\n" +
             "  -svg: output an svg file\n" +
             "  -dot: output a dot file\n" +
             "  -plant: output plantuml to file\n");
@@ -24,10 +25,11 @@ function main(args) {
     var merge = switches.indexOf("-m") >= 0 || switches.indexOf("-merge") >= 0;
     var noMethods = switches.indexOf("-no-methods") >= 0;
     var noProperties = switches.indexOf("-no-properties") >= 0;
+    var noTypes = switches.indexOf("-no-types") >= 0;
     var svgOutput = switches.indexOf("-svg") >= 0;
     var dotOutput = switches.indexOf("-dot") >= 0;
     var plantOutput = switches.indexOf("-plant") >= 0;
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, svgOutput, dotOutput, plantOutput);
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, merge, noMethods, noProperties, noTypes, svgOutput, dotOutput, plantOutput);
     console.log("Done");
 }
 function run() {

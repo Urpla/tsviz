@@ -220,6 +220,16 @@ var Class = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Class.prototype, "isInterface", {
+        get: function () {
+            return this._isInterface;
+        },
+        set: function (isInterface) {
+            this._isInterface = isInterface;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Class;
 }(Element));
 exports.Class = Class;
@@ -228,6 +238,16 @@ var Method = (function (_super) {
     function Method() {
         _super.apply(this, arguments);
     }
+    Object.defineProperty(Method.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        set: function (type) {
+            this._type = type;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Method;
 }(Element));
 exports.Method = Method;
@@ -260,6 +280,16 @@ var Property = (function (_super) {
         },
         set: function (value) {
             this._hasSetter = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Property.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        set: function (type) {
+            this._type = type;
         },
         enumerable: true,
         configurable: true

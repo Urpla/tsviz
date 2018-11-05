@@ -1,37 +1,37 @@
 "use strict";
 var ts_elements_1 = require("./ts-elements");
 var fs_1 = require("fs");
-function buildUml(modules, outputFilename, noMethods, noProperties) {
+function buildUml(modules, outputFilename, noMethods, noProperties, noTypes) {
     var out = [];
     out.push("@startuml");
     modules.forEach(function (module) {
-        buildModule(module, out, module.path, noMethods, noProperties);
+        buildModule(module, out, module.path, noMethods, noProperties, noTypes);
     });
     out.push("@enduml");
     fs_1.writeFileSync(outputFilename, out.join("\n"));
 }
 exports.buildUml = buildUml;
-function buildModule(module, out, path, noMethods, noProperties) {
+function buildModule(module, out, path, noMethods, noProperties, noTypes) {
     module.modules.forEach(function (childModule) {
-        buildModule(childModule, out, (path ? path + "." : "") + module.name, noMethods, noProperties);
+        buildModule(childModule, out, (path ? path + "." : "") + module.name, noMethods, noProperties, noTypes);
     });
     module.classes.forEach(function (childClass) {
-        buildClass(childClass, out, (path ? path + "." : "") + module.name, noMethods, noProperties);
+        buildClass(childClass, out, (path ? path + "." : "") + module.name, noMethods, noProperties, noTypes);
     });
 }
-function buildClass(classDef, out, path, noMethods, noProperties) {
+function buildClass(classDef, out, path, noMethods, noProperties, noTypes) {
     var className = (path ? path + "." : "") + classDef.name;
-    out.push("class " + className + (classDef.typeParameter ? "<" + classDef.typeParameter + ">" : "") + (!noMethods || !noProperties ? " {" : ""));
+    out.push((classDef.isInterface ? "interface" : "class") + " " + className + (classDef.typeParameter ? "<" + classDef.typeParameter + ">" : "") + (!noMethods || !noProperties ? " {" : ""));
     if (!noMethods || !noProperties) {
         if (!noMethods) {
             out.push.apply(out, classDef.methods
                 .filter(function (e) { return e.visibility == ts_elements_1.Visibility.Public; })
-                .map(function (e) { return getMethodSignature(e); }));
+                .map(function (e) { return getMethodSignature(e, path, noTypes); }));
         }
         if (!noProperties) {
             out.push.apply(out, classDef.properties
                 .filter(function (e) { return e.visibility == ts_elements_1.Visibility.Public; })
-                .map(function (e) { return getPropertySignature(e); }));
+                .map(function (e) { return getPropertySignature(e, path, noTypes); }));
         }
         out.push("}");
     }
@@ -48,14 +48,30 @@ function buildClass(classDef, out, path, noMethods, noProperties) {
         }
     }
 }
-function getMethodSignature(method) {
+function getMethodSignature(method, path, noTypes) {
+    var postfix = "()";
+    if (!noTypes && method.type) {
+        var type = method.type;
+        if (path) {
+            type = type.replace(path + '.', '');
+        }
+        postfix += " : " + type;
+    }
     return [
         visibilityToString(method.visibility),
         lifetimeToString(method.lifetime),
-        getName(method) + "()"
+        getName(method) + postfix
     ].join(" ");
 }
-function getPropertySignature(property) {
+function getPropertySignature(property, path, noTypes) {
+    var postfix = "";
+    if (!noTypes && property.type) {
+        var type = property.type;
+        if (path) {
+            type = type.replace(path + '.', '');
+        }
+        postfix += " : " + type;
+    }
     return [
         visibilityToString(property.visibility),
         lifetimeToString(property.lifetime),
@@ -63,7 +79,7 @@ function getPropertySignature(property) {
             (property.hasGetter ? "get" : null),
             (property.hasSetter ? "set" : null)
         ].filter(function (v) { return v !== null; }).join("/"),
-        getName(property)
+        getName(property) + postfix
     ].join(" ");
 }
 function visibilityToString(visibility) {
