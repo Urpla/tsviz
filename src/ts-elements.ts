@@ -108,6 +108,7 @@ export class Class extends Element {
     private _extends: QualifiedName;
     private _implements: QualifiedName;
     private _typeParameter : string;
+    private _isInterface: boolean;
     
     public get methods(): Array<Method> {
         return this._methods;
@@ -166,10 +167,26 @@ export class Class extends Element {
     public set typeParameter(t: string) {
         this._typeParameter = t;
     }
+
+    public get isInterface(): boolean {
+        return this._isInterface;
+    }
+
+    public set isInterface(isInterface: boolean) {
+        this._isInterface = isInterface;
+    }
 }
 
 export class Method extends Element {
+    private _type: string;
     
+    public get type(): string {
+        return this._type;
+    }
+
+    public set type(type: string) {
+        this._type = type;
+    }
 }
 
 export class ImportedModule extends Element {
@@ -179,6 +196,7 @@ export class ImportedModule extends Element {
 export class Property extends Element {
     private _hasGetter: boolean;
     private _hasSetter: boolean;
+    private _type: string;
     
     public get hasGetter(): boolean {
         return this._hasGetter;
@@ -194,6 +212,14 @@ export class Property extends Element {
     
     public set hasSetter(value: boolean) {
         this._hasSetter = value;
+    }
+
+    public get type(): string {
+        return this._type;
+    }
+
+    public set type(type: string) {
+        this._type = type;
     }
 }
 

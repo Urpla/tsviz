@@ -80,7 +80,7 @@ function getModules(targetPath: string, recursive: boolean): Module[] {
 }
 
 export function createGraph(targetPath: string, outputFilename: string,
-    dependenciesOnly: boolean, recursive: boolean, merge: boolean, noMethods: boolean, noProperties: boolean,
+    dependenciesOnly: boolean, recursive: boolean, merge: boolean, noMethods: boolean, noProperties: boolean, noTypes: boolean,
     svgOutput: boolean, dotOutput: boolean, plantOutput: boolean) {
     let modules = getModules(targetPath, recursive);
 
@@ -92,7 +92,7 @@ export function createGraph(targetPath: string, outputFilename: string,
     }
 
     if (plantOutput) {
-        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties);
+        plantBuilder.buildUml(modules, outputFilename, noMethods, noProperties, noTypes);
     } else {
         umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProperties, svgOutput, dotOutput);
     }
