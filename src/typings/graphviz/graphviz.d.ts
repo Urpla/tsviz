@@ -57,7 +57,7 @@ declare module 'graphviz' {
     addEdge(nodeOne: Node, nodeTwo: string, attrs?: any): Edge;
     addEdge(nodeOne: Node, nodeTwo: Node, attrs?: any): Edge;
     edgeCount(): number;
-    edges: [];
+    edges: any[];
 
     // Subgraph (cluster) API
     addCluster(id: string): Graph;

@@ -77,6 +77,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             case ts.SyntaxKind.GetAccessor:
             case ts.SyntaxKind.SetAccessor:
             case ts.SyntaxKind.PropertyDeclaration:
+            case ts.SyntaxKind.PropertySignature:
                 let propertyDeclaration = <ts.PropertyDeclaration> node;
                 let property = new Property((<ts.Identifier>propertyDeclaration.name).text, currentElement, getVisibility(node), getLifetime(node));
                 switch (node.kind) {
@@ -89,14 +90,14 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 childElement = property;
                 skipChildren = true;
                 break;
-                
+
             case ts.SyntaxKind.MethodDeclaration:
             case ts.SyntaxKind.FunctionDeclaration:
+            case ts.SyntaxKind.MethodSignature:
                 let functionDeclaration = <ts.Declaration> node;
                 childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
-                
         }
         
         if (childElement) {
@@ -146,6 +147,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             }
         }
         switch (node.parent.kind) {
+            case ts.SyntaxKind.InterfaceDeclaration:
             case ts.SyntaxKind.ClassDeclaration:
                 return Visibility.Public;
             case ts.SyntaxKind.ModuleDeclaration:
