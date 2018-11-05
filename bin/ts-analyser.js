@@ -15,72 +15,74 @@ function collectInformation(program, sourceFile) {
         var childElement;
         var skipChildren = false;
         switch (node.kind) {
-            case 221:
+            case ts.SyntaxKind.ModuleDeclaration:
                 var moduleDeclaration = node;
                 childElement = new ts_elements_1.Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
-            case 224:
+            case ts.SyntaxKind.ImportEqualsDeclaration:
                 var importEqualDeclaration = node;
                 childElement = new ts_elements_1.ImportedModule(importEqualDeclaration.name.text, currentElement);
                 break;
-            case 225:
+            case ts.SyntaxKind.ImportDeclaration:
                 var importDeclaration = node;
                 var moduleName_1 = importDeclaration.moduleSpecifier.text;
                 childElement = new ts_elements_1.ImportedModule(moduleName_1, currentElement);
                 break;
-            case 218:
+            case ts.SyntaxKind.InterfaceDeclaration:
                 var interfaceDeclaration = node;
                 var interfaceDef = new ts_elements_1.Class(interfaceDeclaration.name.text, currentElement, getVisibility(node));
                 if (interfaceDeclaration.typeParameters && interfaceDeclaration.typeParameters.length > 0) {
                     interfaceDef.typeParameter = interfaceDeclaration.typeParameters[0].name.text;
                 }
                 if (interfaceDeclaration.heritageClauses) {
-                    var extendsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === 83; });
+                    var extendsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === ts.SyntaxKind.ExtendsKeyword; });
                     if (extendsClause && extendsClause.types.length > 0) {
                         interfaceDef.extends = getFullyQualifiedName(extendsClause.types[0]);
                     }
-                    var implementsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === 106; });
+                    var implementsClause = extensions_1.Collections.firstOrDefault(interfaceDeclaration.heritageClauses, function (c) { return c.token === ts.SyntaxKind.ImplementsKeyword; });
                     if (implementsClause && implementsClause.types.length > 0) {
                         interfaceDef.implements = getFullyQualifiedName(implementsClause.types[0]);
                     }
                 }
                 childElement = interfaceDef;
                 break;
-            case 217:
+            case ts.SyntaxKind.ClassDeclaration:
                 var classDeclaration = node;
                 var classDef = new ts_elements_1.Class(classDeclaration.name.text, currentElement, getVisibility(node));
                 if (classDeclaration.typeParameters && classDeclaration.typeParameters.length > 0) {
                     classDef.typeParameter = classDeclaration.typeParameters[0].name.text;
                 }
                 if (classDeclaration.heritageClauses) {
-                    var extendsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 83; });
+                    var extendsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === ts.SyntaxKind.ExtendsKeyword; });
                     if (extendsClause && extendsClause.types.length > 0) {
                         classDef.extends = getFullyQualifiedName(extendsClause.types[0]);
                     }
-                    var implementsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 106; });
+                    var implementsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === ts.SyntaxKind.ImplementsKeyword; });
                     if (implementsClause && implementsClause.types.length > 0) {
                         classDef.implements = getFullyQualifiedName(implementsClause.types[0]);
                     }
                 }
                 childElement = classDef;
                 break;
-            case 146:
-            case 147:
-            case 142:
+            case ts.SyntaxKind.GetAccessor:
+            case ts.SyntaxKind.SetAccessor:
+            case ts.SyntaxKind.PropertyDeclaration:
+            case ts.SyntaxKind.PropertySignature:
                 var propertyDeclaration = node;
                 var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
                 switch (node.kind) {
-                    case 146:
+                    case ts.SyntaxKind.GetAccessor:
                         property.hasGetter = true;
                         break;
-                    case 147:
+                    case ts.SyntaxKind.SetAccessor:
                         property.hasSetter = true;
                 }
                 childElement = property;
                 skipChildren = true;
                 break;
-            case 144:
-            case 216:
+            case ts.SyntaxKind.MethodDeclaration:
+            case ts.SyntaxKind.FunctionDeclaration:
+            case ts.SyntaxKind.MethodSignature:
                 var functionDeclaration = node;
                 childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
@@ -98,7 +100,7 @@ function collectInformation(program, sourceFile) {
         var symbol = typeChecker.getSymbolAtLocation(expression.expression);
         if (symbol) {
             var nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
-            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === 229) {
+            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === ts.SyntaxKind.ImportSpecifier) {
                 var importSpecifier = symbol.declarations[0];
                 var moduleName_2 = importSpecifier.parent.parent.parent.moduleSpecifier.text;
                 nameParts.unshift(moduleName_2);
@@ -116,30 +118,31 @@ function collectInformation(program, sourceFile) {
     }
     function getVisibility(node) {
         if (node.modifiers) {
-            if (hasModifierSet(node.modifiers.flags, 64)) {
+            if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Protected)) {
                 return ts_elements_1.Visibility.Protected;
             }
-            else if (hasModifierSet(node.modifiers.flags, 32)) {
+            else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Private)) {
                 return ts_elements_1.Visibility.Private;
             }
-            else if (hasModifierSet(node.modifiers.flags, 16)) {
+            else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Public)) {
                 return ts_elements_1.Visibility.Public;
             }
-            else if (hasModifierSet(node.modifiers.flags, 1)) {
+            else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Export)) {
                 return ts_elements_1.Visibility.Public;
             }
         }
         switch (node.parent.kind) {
-            case 217:
+            case ts.SyntaxKind.InterfaceDeclaration:
+            case ts.SyntaxKind.ClassDeclaration:
                 return ts_elements_1.Visibility.Public;
-            case 221:
+            case ts.SyntaxKind.ModuleDeclaration:
                 return ts_elements_1.Visibility.Private;
         }
         return ts_elements_1.Visibility.Private;
     }
     function getLifetime(node) {
         if (node.modifiers) {
-            if (hasModifierSet(node.modifiers.flags, 128)) {
+            if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Static)) {
                 return ts_elements_1.Lifetime.Static;
             }
         }

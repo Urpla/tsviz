@@ -48,8 +48,8 @@ function getModules(targetPath, recursive) {
     var compilerOptions = {
         noEmitOnError: true,
         noImplicitAny: true,
-        target: 1,
-        module: 2
+        target: ts.ScriptTarget.ES5,
+        module: ts.ModuleKind.AMD
     };
     var compilerHost = ts.createCompilerHost(compilerOptions, true);
     var program = ts.createProgram(fileNames, compilerOptions, compilerHost);
