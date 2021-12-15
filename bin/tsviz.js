@@ -1,3 +1,4 @@
+/// <reference path="typings/node/node.d.ts" />
 "use strict";
 var fs_1 = require("fs");
 var ts = require("typescript");
@@ -5,6 +6,7 @@ var analyser = require("./ts-analyser");
 var umlBuilder = require("./uml-builder");
 var plantBuilder = require("./plant-builder");
 function walk(dir, recursive) {
+    /* Source: http://stackoverflow.com/a/5827895 */
     var results = [];
     var list = fs_1.readdirSync(dir);
     var i = 0;
@@ -51,12 +53,13 @@ function getModules(targetPath, recursive) {
         target: ts.ScriptTarget.ES5,
         module: ts.ModuleKind.AMD
     };
-    var compilerHost = ts.createCompilerHost(compilerOptions, true);
+    // analyse sources
+    var compilerHost = ts.createCompilerHost(compilerOptions, /*setParentNodes */ true);
     var program = ts.createProgram(fileNames, compilerOptions, compilerHost);
     var modules = program.getSourceFiles()
         .filter(function (f) { return f.fileName.lastIndexOf(".d.ts") !== f.fileName.length - ".d.ts".length; })
         .map(function (sourceFile) { return analyser.collectInformation(program, sourceFile); });
-    process.chdir(originalDir);
+    process.chdir(originalDir); // go back to the original dir
     console.log("Found " + modules.length + " module(s)");
     return modules;
 }

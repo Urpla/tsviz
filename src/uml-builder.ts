@@ -165,7 +165,20 @@ function getMethodSignature(method: Method): string {
     ].join(" ");
 }
 
+function formatType(type: string): string {
+    if((type || '').indexOf('.') >= 0) {
+        type = type.substring(0, type.indexOf('"')) + type.substring(type.indexOf('.') + 1);
+        return formatType(type);
+    }
+    return type.replace(/</g, '\\<').replace(/>/g, '\\>');
+}
+
 function getPropertySignature(property: Property): string {
+    let type  = "";
+    if (property && property.type) {
+        
+        type += " : " + formatType(property.type)
+    }
     return [
         visibilityToString(property.visibility),
         lifetimeToString(property.lifetime),
@@ -173,7 +186,7 @@ function getPropertySignature(property: Property): string {
             (property.hasGetter ? "get" : null),
             (property.hasSetter ? "set" : null)
         ].filter(v => v !== null).join("/"),
-        getName(property)
+        (getName(property) + type)
     ].join(" ");
 }
 

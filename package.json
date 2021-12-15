@@ -6,6 +6,9 @@
   "bin": {
     "tsviz": "bin/tsviz-main.js"
   },
+  "scripts": {
+    "build": "tsc ./src/*.ts --outDir ./bin"
+  },
   "preferGlobal": true,
   "repository": {
     "type": "git",

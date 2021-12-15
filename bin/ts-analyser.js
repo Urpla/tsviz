@@ -6,8 +6,8 @@ var extensions_1 = require("./extensions");
 function collectInformation(program, sourceFile) {
     var typeChecker = program.getTypeChecker();
     var filename = sourceFile.fileName;
-    filename = filename.substr(0, filename.lastIndexOf("."));
-    var moduleName = path.basename(filename);
+    filename = filename.substr(0, filename.lastIndexOf(".")); // filename without extension
+    var moduleName = path.basename(filename); // get module filename without directory
     var module = new ts_elements_1.Module(moduleName, null);
     module.path = path.dirname(filename);
     analyseNode(sourceFile, module);
@@ -100,7 +100,7 @@ function collectInformation(program, sourceFile) {
             currentElement.addElement(childElement);
         }
         if (skipChildren) {
-            return;
+            return; // no need to inspect children
         }
         ts.forEachChild(node, function (node) { return analyseNode(node, childElement || currentElement); });
     }
@@ -109,13 +109,16 @@ function collectInformation(program, sourceFile) {
         if (symbol) {
             var nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
             if (symbol.declarations.length > 0 && symbol.declarations[0].kind === ts.SyntaxKind.ImportSpecifier) {
+                // symbol comes from an imported module
+                // get the module name from the import declaration
                 var importSpecifier = symbol.declarations[0];
                 var moduleName_2 = importSpecifier.parent.parent.parent.moduleSpecifier.text;
                 nameParts.unshift(moduleName_2);
             }
             else {
                 if (nameParts.length > 0 && nameParts[0].indexOf("\"") === 0) {
-                    var moduleName_3 = nameParts[0].replace(/\"/g, "");
+                    // if first name part has " then it should be a module name
+                    var moduleName_3 = nameParts[0].replace(/\"/g, ""); // remove " from module name
                     nameParts[0] = moduleName_3;
                 }
             }

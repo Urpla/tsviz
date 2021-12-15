@@ -20,7 +20,7 @@ function main(args) {
     }
     var targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
     var outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
-    var dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0;
+    var dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0; // dependencies or uml?
     var recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
     var merge = switches.indexOf("-m") >= 0 || switches.indexOf("-merge") >= 0;
     var noMethods = switches.indexOf("-no-methods") >= 0;

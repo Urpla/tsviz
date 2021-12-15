@@ -1,3 +1,4 @@
+/// <reference path="typings/graphviz/graphviz.d.ts"/>
 "use strict";
 var graphviz = require("graphviz");
 var ts_elements_1 = require("./ts-elements");
@@ -9,6 +10,7 @@ function buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProper
     var FontSize = 12;
     var FontNameKey = "fontname";
     var FontName = "Verdana";
+    // set diagram default styles
     g.set(FontSizeKey, FontSize);
     g.set(FontNameKey, FontName);
     g.setEdgeAttribut(FontSizeKey, FontSize);
@@ -16,6 +18,9 @@ function buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProper
     g.setNodeAttribut(FontSizeKey, FontSize);
     g.setNodeAttribut(FontNameKey, FontName);
     g.setNodeAttribut("shape", "record");
+    // We need to scan the modules twice, once to add all the nodes then to add the edges 
+    // otherwise non-existant nodes get added to the wrong cluster
+    // (we only do this when not generating dependencies)
     if (!dependenciesOnly) {
         modules.forEach(function (module) {
             buildModule(module, g, module.path, 0, dependenciesOnly, noMethods, noProperties, false);
@@ -31,9 +36,11 @@ function buildUml(modules, outputFilename, dependenciesOnly, noMethods, noProper
         }
     }
     if (dotOutput) {
+        // Generate a dot output
         fs_1.writeFileSync(outputFilename, g.to_dot());
     }
     else {
+        // Generate a PNG/SVG output
         g.output(svgOutput ? "svg" : "png", outputFilename);
     }
 }
@@ -41,6 +48,7 @@ exports.buildUml = buildUml;
 function buildModule(module, g, path, level, dependenciesOnly, noMethods, noProperties, addEdges) {
     var ModulePrefix = "cluster_";
     var moduleId = getGraphNodeId(path, module.name);
+    // When adding edge, we put them at the top level to prevent nodes from being generated in the wrong clusters
     if (!dependenciesOnly && addEdges) {
         module.modules.forEach(function (childModule) {
             buildModule(childModule, g, moduleId, level + 1, false, noMethods, noProperties, addEdges);
@@ -88,12 +96,14 @@ function buildClass(classDef, g, path, noMethods, noProperties, addEdges) {
         });
     }
     else {
+        // add inheritance arrow
         var addEdge = function (nodeOne, nodeTwo, nodeTwoLabel) {
             if (g.edges.some(function (edge) {
                 return (edge.nodeOne.id === nodeOne) && (edge.nodeTwo.id === nodeTwo);
             })) {
                 return;
             }
+            // If the node doesn't exist anywhere add a placeholder as it might be external, this will give it a proper label
             if (!findNode(nodeTwo, g)) {
                 g.addNode(nodeTwo, {
                     "label": "{" + nodeTwoLabel + "}"
@@ -121,7 +131,18 @@ function getMethodSignature(method) {
         getName(method) + "()"
     ].join(" ");
 }
+function formatType(type) {
+    if ((type || '').indexOf('.') >= 0) {
+        type = type.substring(0, type.indexOf('"')) + type.substring(type.indexOf('.') + 1);
+        return formatType(type);
+    }
+    return type.replace(/</g, '\\<').replace(/>/g, '\\>');
+}
 function getPropertySignature(property) {
+    var type = "";
+    if (property && property.type) {
+        type += " : " + formatType(property.type);
+    }
     return [
         visibilityToString(property.visibility),
         lifetimeToString(property.lifetime),
@@ -129,7 +150,7 @@ function getPropertySignature(property) {
             (property.hasGetter ? "get" : null),
             (property.hasSetter ? "set" : null)
         ].filter(function (v) { return v !== null; }).join("/"),
-        getName(property)
+        (getName(property) + type)
     ].join(" ");
 }
 function visibilityToString(visibility) {

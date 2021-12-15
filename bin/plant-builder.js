@@ -53,6 +53,8 @@ function getMethodSignature(method, path, noTypes) {
     if (!noTypes && method.type) {
         var type = method.type;
         if (path) {
+            // Strip out the current namespace from the type, we could give the type more 
+            // structure to more easily ommit the current namespace but this works for now
             type = type.replace(path + '.', '');
         }
         postfix += " : " + type;
@@ -68,6 +70,8 @@ function getPropertySignature(property, path, noTypes) {
     if (!noTypes && property.type) {
         var type = property.type;
         if (path) {
+            // Strip out the current namespace from the type, we could give the type more 
+            // structure to more easily ommit the current namespace but this works for now
             type = type.replace(path + '.', '');
         }
         postfix += " : " + type;
